@@ -8,75 +8,68 @@ import java.util.List;
 
 public class EmployeeDAO {
 
-    // Register a new employee in MySQL
     public boolean addEmployee(Employee employee) {
 
         String sql = "INSERT INTO employees "
-                   + "(employee_name, department, designation, basic_salary) "
-                   + "VALUES (?, ?, ?, ?)";
+                + "(employee_name, department, designation, basic_salary) "
+                + "VALUES (?, ?, ?, ?)";
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement =
-                     connection.prepareStatement(sql)) {
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-            statement.setString(1, employee.getEmployeeName());
-            statement.setString(2, employee.getDepartment());
-            statement.setString(3, employee.getDesignation());
-            statement.setBigDecimal(
-                    4,
-                    java.math.BigDecimal.valueOf(employee.getBasicSalary())
-            );
+            ps.setString(1, employee.getEmployeeName());
+            ps.setString(2, employee.getDepartment());
+            ps.setString(3, employee.getDesignation());
+            ps.setDouble(4, employee.getBasicSalary());
 
-            int rowsInserted = statement.executeUpdate();
+            int rows = ps.executeUpdate();
 
-            if (rowsInserted > 0) {
-                System.out.println("Employee registered successfully.");
+            if (rows > 0) {
+                System.out.println(
+                        "Employee registered successfully.");
                 return true;
             }
 
         } catch (SQLException e) {
             System.out.println(
-                    "Failed to register employee: " + e.getMessage()
-            );
+                    "Employee Error: " + e.getMessage());
         }
 
         return false;
     }
 
-    // Return all employees from the database
     public List<Employee> getAllEmployees() {
 
         List<Employee> employees = new ArrayList<>();
 
-        String sql = "SELECT employee_id, employee_name, department, "
-                   + "designation, basic_salary "
-                   + "FROM employees ORDER BY employee_id";
+        String sql = "SELECT * FROM employees "
+                + "ORDER BY employee_id";
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement =
-                     connection.prepareStatement(sql);
-             ResultSet result = statement.executeQuery()) {
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
-            while (result.next()) {
-                employees.add(new Employee(
-                        result.getInt("employee_id"),
-                        result.getString("employee_name"),
-                        result.getString("department"),
-                        result.getString("designation"),
-                        result.getBigDecimal("basic_salary").doubleValue()
-                ));
+            while (rs.next()) {
+
+                Employee employee = new Employee(
+                        rs.getInt("employee_id"),
+                        rs.getString("employee_name"),
+                        rs.getString("department"),
+                        rs.getString("designation"),
+                        rs.getDouble("basic_salary")
+                );
+
+                employees.add(employee);
             }
 
         } catch (SQLException e) {
             System.out.println(
-                    "Failed to retrieve employees: " + e.getMessage()
-            );
+                    "Retrieve Error: " + e.getMessage());
         }
 
         return employees;
     }
 
-    // Display employee records in the console
     public void viewEmployees() {
 
         List<Employee> employees = getAllEmployees();
@@ -86,31 +79,28 @@ public class EmployeeDAO {
             return;
         }
 
-        System.out.println("\n========== EMPLOYEE RECORDS ==========");
+        System.out.println("===== EMPLOYEE RECORDS =====");
 
         for (Employee employee : employees) {
             System.out.println(employee);
         }
     }
 
-    // Return the total number of registered employees
     public int getEmployeeCount() {
 
         String sql = "SELECT COUNT(*) FROM employees";
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement =
-                     connection.prepareStatement(sql);
-             ResultSet result = statement.executeQuery()) {
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
-            if (result.next()) {
-                return result.getInt(1);
+            if (rs.next()) {
+                return rs.getInt(1);
             }
 
         } catch (SQLException e) {
             System.out.println(
-                    "Failed to count employees: " + e.getMessage()
-            );
+                    "Count Error: " + e.getMessage());
         }
 
         return 0;

@@ -1,6 +1,4 @@
 package java;
-
-
 public class PayrollCalculator {
 
     private double basicSalary;
@@ -15,11 +13,14 @@ public class PayrollCalculator {
     }
 
     public void calculateSalary() {
+
         hra = basicSalary * 0.20;
         otherAllowance = basicSalary * 0.10;
         pfDeduction = basicSalary * 0.12;
 
-        grossSalary = basicSalary + hra + otherAllowance;
+        grossSalary = basicSalary
+                + hra + otherAllowance;
+
         netSalary = grossSalary - pfDeduction;
     }
 

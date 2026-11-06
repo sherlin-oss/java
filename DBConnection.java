@@ -10,10 +10,18 @@ public class DBConnection {
 
     private static final String USER = "root";
 
-    // Replace this with your actual MySQL root password.
-    private static final String PASSWORD = "Mango!River72#Cloud";
-
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+
+        String password = System.getenv("DB_PASSWORD");
+
+        if (password == null || password.isEmpty()) {
+            throw new SQLException(
+                "Database password is not configured."
+            );
+        }
+
+        return DriverManager.getConnection(
+                URL, USER, password
+        );
     }
 }
